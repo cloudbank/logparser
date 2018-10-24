@@ -41,9 +41,7 @@ public class LogParserRepository {
 		((MapSqlParameterSource) in).addValue("threshold", threshold);
 		Map<String, Object> out = jdbcCall.execute(in);
 		Map.Entry entry = (Entry) (out.entrySet().toArray())[0];
-
 		ArrayList<LinkedCaseInsensitiveMap> al = (ArrayList) entry.getValue();
-
 		log.info("Begin insert into blocked table.");
 		insertBatch(getIps(al), threshold, sDate, duration);
 		log.info("Query inserted into blocked table.");
