@@ -28,7 +28,7 @@ public class LogParserRepository {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	private static final Logger log = LoggerFactory.getLogger(LogParserRepository.class);
-	ExecutorService es = Executors.newSingleThreadExecutor();
+
 
 	public int getLogEntries(String startDate, String duration, int threshold) {
 
@@ -90,7 +90,6 @@ public class LogParserRepository {
 
 				ps.setDate(1, java.sql.Date.valueOf(logtime.toLocalDate()));
 				ps.setString(2, al.get(i));
-
 				ps.setString(3, comment);
 			}
 
