@@ -35,7 +35,7 @@ StoredProcedures
 * getLogEntries
 
 
-A single example test was added as an example in the /test directory
+A single test was added as an example in the /test directory
 
 * LogParserTest
 
