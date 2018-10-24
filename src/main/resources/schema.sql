@@ -12,7 +12,7 @@
 		
 				
 		CREATE TABLE IF NOT EXISTS `blocked`  (
-            id MEDIUMINT NOT NULL AUTO_INCREMENT,
+		    id MEDIUMINT NOT NULL AUTO_INCREMENT,
     		logtime DATETIME(3),
     		ip VARCHAR(20),
     		blockComment VARCHAR(255),
