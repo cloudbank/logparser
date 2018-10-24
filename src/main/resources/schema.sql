@@ -10,8 +10,7 @@
     		UNIQUE unique_index(logtime,ip)
 		);
 		
-		
-		
+				
 		CREATE TABLE IF NOT EXISTS `blocked`  (
   		    id MEDIUMINT NOT NULL AUTO_INCREMENT,
     		logtime DATETIME(3),

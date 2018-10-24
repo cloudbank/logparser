@@ -1,27 +1,42 @@
 package com.ef.logparse;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
-public class LogParser {
-	private static final Logger log = LoggerFactory.getLogger(LogParser.class);
+import com.mysql.jdbc.PreparedStatement;
+
+@Repository
+@Transactional
+public class LogParserRepository {
+
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+	private static final Logger log = LoggerFactory.getLogger(LogParserRepository.class);
 	ExecutorService es = Executors.newSingleThreadExecutor();
 
-	public void getLogEntries(JdbcTemplate jdbcTemplate, String startDate, String duration, int threshold) {
+	public int getLogEntries(String startDate, String duration, int threshold) {
+		
 		LocalDateTime sDate = convertToLocalDateTime(startDate);
 		SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("getLogEntries");
 		LocalDateTime endDate = computeEndDate(sDate, duration);
@@ -34,20 +49,20 @@ public class LogParser {
 		Map.Entry entry = (Entry) (out.entrySet().toArray())[0];
 
 		ArrayList<LinkedCaseInsensitiveMap> al = (ArrayList) entry.getValue();
-		es.execute(new Runnable() {
 
-			@Override
-			public void run() {
-				log.info("Begin insert into blocked table.");
-				insertEntries(al, jdbcTemplate, threshold, sDate, duration);
-				log.info("Query inserted into blocked table.");
-				
-			}
-			
-		});
-		
-		
-
+		/*
+		 * es.execute(new Runnable() {
+		 * 
+		 * @Override public void run() {
+		 */
+		log.info("Begin insert into blocked table.");
+		insertBatch(getIps(al), threshold, sDate, duration);
+		log.info("Query inserted into blocked table.");
+		/*
+		 * }
+		 * 
+		 * });
+		 */
 		System.out.println(
 				"-----------------------------------------------------------------------------------------------------------------------------------");
 
@@ -65,24 +80,41 @@ public class LogParser {
 		}
 
 		);
-		
+
+		return al.size();
+
 	}
-	@Transactional(rollbackFor=Exception.class)
-	private void insertEntries(final ArrayList<LinkedCaseInsensitiveMap> al, JdbcTemplate jdbcTemplate, int threshold,
-			LocalDateTime logtime, String duration) {
+	
 
-		for (LinkedCaseInsensitiveMap map : al) {
-
-			SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("insertBlockedEntries");
-			SqlParameterSource in = new MapSqlParameterSource();
-			((MapSqlParameterSource) in).addValue("logtime", logtime);
-			((MapSqlParameterSource) in).addValue("ip", map.entrySet().stream().findFirst().get());
-			String comment = "more than " + threshold + " " + duration + " requests";
-			((MapSqlParameterSource) in).addValue("blockComment", comment);
-			Map<String, Object> out = jdbcCall.execute(in);
-
+	private ArrayList<String> getIps(ArrayList<LinkedCaseInsensitiveMap> al) {
+		List<String> sl = new ArrayList<>();
+		for (LinkedCaseInsensitiveMap m : al) {
+		    sl.add(m.entrySet().stream().findFirst().get().toString().split("=")[1]);
 		}
+		return (ArrayList<String>) sl;
+	}
 
+	public void insertBatch(final ArrayList<String> al, int threshold, LocalDateTime logtime, String duration) {
+
+		String sql = "INSERT IGNORE INTO blocked " + "(logtime, ip, blockComment) VALUES (?, ?, ?)";
+		String comment = "more than " + threshold + " " + duration + " requests";
+		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+
+			@Override
+			public void setValues(java.sql.PreparedStatement ps, int i) throws SQLException {
+
+				ps.setDate(1, java.sql.Date.valueOf(logtime.toLocalDate()));
+				ps.setString(2, al.get(i));
+
+				ps.setString(3, comment);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return al.size();
+			}
+
+		});
 	}
 
 	

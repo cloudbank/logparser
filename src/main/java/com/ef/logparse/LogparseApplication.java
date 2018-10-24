@@ -16,8 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class LogparseApplication implements CommandLineRunner {
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
-
+	LogParserRepository lp;
 	private static final Logger log = LoggerFactory.getLogger(LogparseApplication.class);
 
 	public static void main(String args[]) {
@@ -27,21 +26,19 @@ public class LogparseApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-
-		String duration = decodeArgs(strings).get("duration");
-		String startDate = decodeArgs(strings).get("startDate");
-		int threshold = Integer.parseInt(decodeArgs(strings).get("threshold"));
-		System.out.println(startDate + " : " + duration + " : " + threshold);
-
 		if (strings.length > 0) {
-			LogParser lp = new LogParser();
-			lp.getLogEntries(jdbcTemplate, startDate, duration, threshold);
+			String duration = decodeArgs(strings).get("duration");
+			String startDate = decodeArgs(strings).get("startDate");
+			int threshold = Integer.parseInt(decodeArgs(strings).get("threshold"));
+			System.out.println(startDate + " : " + duration + " : " + threshold);
+
+			lp.getLogEntries(startDate, duration, threshold);
 
 		} else {
 
 			System.out.println(
-					"USAGE: java -jar logparser-1.0.0.jar --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100" ); 
-		}			
+					"USAGE: java -jar logparser-1.0.0.jar --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100");
+		}
 
 	}
 
