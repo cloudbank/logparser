@@ -29,7 +29,6 @@ public class LogParserRepository {
 	JdbcTemplate jdbcTemplate;
 	private static final Logger log = LoggerFactory.getLogger(LogParserRepository.class);
 
-
 	public int getLogEntries(String startDate, String duration, int threshold) {
 
 		LocalDateTime sDate = convertToLocalDateTime(startDate);
@@ -87,7 +86,6 @@ public class LogParserRepository {
 
 			@Override
 			public void setValues(java.sql.PreparedStatement ps, int i) throws SQLException {
-
 				ps.setDate(1, java.sql.Date.valueOf(logtime.toLocalDate()));
 				ps.setString(2, al.get(i));
 				ps.setString(3, comment);
