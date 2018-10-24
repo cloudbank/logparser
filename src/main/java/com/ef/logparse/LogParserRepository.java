@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +21,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
-import com.mysql.jdbc.PreparedStatement;
-
 @Repository
 @Transactional
 public class LogParserRepository {
@@ -36,7 +31,7 @@ public class LogParserRepository {
 	ExecutorService es = Executors.newSingleThreadExecutor();
 
 	public int getLogEntries(String startDate, String duration, int threshold) {
-		
+
 		LocalDateTime sDate = convertToLocalDateTime(startDate);
 		SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("getLogEntries");
 		LocalDateTime endDate = computeEndDate(sDate, duration);
@@ -50,19 +45,10 @@ public class LogParserRepository {
 
 		ArrayList<LinkedCaseInsensitiveMap> al = (ArrayList) entry.getValue();
 
-		/*
-		 * es.execute(new Runnable() {
-		 * 
-		 * @Override public void run() {
-		 */
 		log.info("Begin insert into blocked table.");
 		insertBatch(getIps(al), threshold, sDate, duration);
 		log.info("Query inserted into blocked table.");
-		/*
-		 * }
-		 * 
-		 * });
-		 */
+
 		System.out.println(
 				"-----------------------------------------------------------------------------------------------------------------------------------");
 
@@ -84,12 +70,11 @@ public class LogParserRepository {
 		return al.size();
 
 	}
-	
 
 	private ArrayList<String> getIps(ArrayList<LinkedCaseInsensitiveMap> al) {
 		List<String> sl = new ArrayList<>();
 		for (LinkedCaseInsensitiveMap m : al) {
-		    sl.add(m.entrySet().stream().findFirst().get().toString().split("=")[1]);
+			sl.add(m.entrySet().stream().findFirst().get().toString().split("=")[1]);
 		}
 		return (ArrayList<String>) sl;
 	}
@@ -117,7 +102,6 @@ public class LogParserRepository {
 		});
 	}
 
-	
 	private LocalDateTime computeEndDate(LocalDateTime startDate, String duration) {
 		if (duration.equals("hourly")) {
 			return (startDate).plusMinutes(59).plusSeconds(59);

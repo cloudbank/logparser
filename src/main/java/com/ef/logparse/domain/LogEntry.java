@@ -1,8 +1,6 @@
 package com.ef.logparse.domain;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class LogEntry {
 
@@ -51,11 +49,6 @@ public class LogEntry {
 
 	public void setRequest(String request) {
 		this.request = request;
-	}
-
-	private LocalDateTime convertDateToLocalTime2(String date) {
-		return LocalDateTime.of(LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
-				LocalDateTime.now().toLocalTime());
 	}
 
 	public LogEntry() {
