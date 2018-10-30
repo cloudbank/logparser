@@ -33,8 +33,7 @@ public class LogparseApplication implements CommandLineRunner {
 			lp.getLogEntries(startDate, duration, threshold);
 
 		} else {
-			System.out.println(
-					"USAGE: java -jar logparser-1.0.0.jar --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100");
+			System.out.println("USAGE: java -jar logparser-1.0.0.jar --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100");
 		}
 
 	}
