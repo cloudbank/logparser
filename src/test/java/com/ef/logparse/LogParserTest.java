@@ -18,5 +18,4 @@ public class LogParserTest {
 	public void logParserTest() {
 		assertEquals(769, lp.getLogEntries("2017-01-01.00:00:00", "daily", 50));
 	}
-
 }
