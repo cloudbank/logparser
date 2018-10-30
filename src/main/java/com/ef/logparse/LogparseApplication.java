@@ -30,11 +30,9 @@ public class LogparseApplication implements CommandLineRunner {
 			String startDate = decodeArgs(strings).get("startDate");
 			int threshold = Integer.parseInt(decodeArgs(strings).get("threshold"));
 			System.out.println(startDate + " : " + duration + " : " + threshold);
-
 			lp.getLogEntries(startDate, duration, threshold);
 
 		} else {
-
 			System.out.println(
 					"USAGE: java -jar logparser-1.0.0.jar --startDate=2017-01-01.13:00:00 --duration=hourly --threshold=100");
 		}
@@ -45,7 +43,6 @@ public class LogparseApplication implements CommandLineRunner {
 		return (HashMap<String, String>) Stream.of(array).map(elem -> elem.split("\\="))
 				.filter(elem -> elem.length == 2).collect(Collectors.toMap(e -> e[0], e -> e[1])).entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().split("\\-\\-")[1], e -> e.getValue()));
-
 	}
 
 }
