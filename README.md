@@ -46,7 +46,7 @@ Issues
 -------
 *  I did not use package, although I would in production, for stored procedures.
 
-* The id for both tables is auto incremented and will have gaps when INSERT IGNORE does not include a duplicate row but updates the id. innodb_autoinc_lock_mode = 0 would solve this but would incur a performance hit, so I did not include it. I could also have written different insert SQL to avoid the gaps but felt it would be a hack to use the well known workaround.  This could be solved in any case, or ids could have gaps as they do when transactions roll back on failed inserts.
+* The id for both tables is auto incremented and will have gaps when INSERT IGNORE does not include a duplicate row. innodb_autoinc_lock_mode = 0 would solve this but would incur a performance hit, so I did not include it. This could be solved in any case, or ids could have gaps as they do when transactions roll back on failed inserts.
 
 * Caching or 'canning' large queries could also be employed for faster lookups.
 
